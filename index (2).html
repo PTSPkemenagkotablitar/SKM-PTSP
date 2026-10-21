@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="id" class="scroll-smooth">
 <head>
-    <title>SKM PTSP</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Survey Kepuasan Masyarakat (SKM) - Kemenag Kota Blitar</title>
@@ -42,7 +41,9 @@
     <header class="bg-kemenag-600 text-white shadow-md sticky top-0 z-50">
         <div class="container mx-auto px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="flex items-center space-x-3">
-                <img src="c:\Users\User\Desktop\Dokumen Pengajuan PTSP\FOLDER LOGO CODING\logo full kemenag.JPG" class="h-12 w-auto bg-white p-1 rounded shadow">
+                <div class="bg-white p-1 rounded shadow flex items-center justify-center h-12 w-12 font-bold text-kemenag-600 text-xl">
+                    <i class="fa-solid fa-mosque"></i>
+                </div>
                 <div>
                     <h1 class="font-bold text-base sm:text-lg tracking-wide">KANTOR KEMENTERIAN AGAMA KOTA BLITAR</h1>
                     <p class="text-xs text-kemenag-100 font-medium">Survey Kepuasan Masyarakat (SKM) • PermenPAN-RB No. 14 Tahun 2017</p>
@@ -56,9 +57,6 @@
 
     <!-- MAIN CONTAINER -->
     <main class="flex-grow container mx-auto px-4 py-8 max-w-4xl">
-        <div>
-            <img src="c:\Users\User\Desktop\Dokumen Pengajuan PTSP\FOLDER LOGO CODING\PTSP BARU.JPG">
-        </div>
         
         <!-- HERO / INTRO -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8 mb-6">
@@ -173,9 +171,9 @@
                                 <option value="" disabled selected>-- Pilih Jenis Layanan Kankemenag Kota Blitar --</option>
                                 <option value="Pelayanan Pendidikan Madrasah">Pelayanan Pendidikan Madrasah</option>
                                 <option value="Pelayanan Bimbingan Masyarakat Islam">Pelayanan Bimbingan Masyarakat Islam</option>
-                                <option value="Pelayanan Pendidikan Agama & Keagamaan Islam (Madrasah / Pesantren / TPQ)">Pelayanan Pendidikan Agama & Keagamaan Islam (Madrasah / Pesantren / TPQ)</option>
+                                <option value="Pelayanan Pendidikan Agama & Keagamaan Islam">Pelayanan Pendidikan Agama & Keagamaan Islam (Madrasah / Pesantren / TPQ)</option>
                                 <option value="Pelayanan Kristen / Katolik / Hindu / Buddha">Pelayanan Kristen / Katolik / Hindu / Buddha</option>
-                                <option value="Pelayanan PTSP (Pusat Layanan Terpadu Satu Pintu) / Legalisasi / Rekomendasi">Pelayanan PTSP (Pusat Layanan Terpadu Satu Pintu) / Legalisasi / Rekomendasi</option>
+                                <option value="Pelayanan PTSP / Legalisasi / Rekomendasi">Pelayanan PTSP / Legalisasi / Rekomendasi</option>
                                 <option value="Pelayanan Kepegawaian">Pelayanan Kepegawaian</option>
                                 <option value="Penyelenggara Zawa">Penyelenggara Zawa (Zakat & Wakaf)</option>
                                 <option value="Sertifikasi Halal">Sertifikasi Halal</option>
@@ -333,9 +331,8 @@
     </div>
 
     <!-- JAVASCRIPT LOGIC -->
-    <!-- JAVASCRIPT LOGIC LENGKAP -->
     <script>
-        // 1. URL Web App dari Google Apps Script (GANTI DENGAN URL DEPLOYMENT ANDA)
+        // 1. URL Web App dari Google Apps Script
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwcRdiCArXS4x1WLV74H4s5LsH6Pv6yaaAzSNHeB5sJ0KNwe0_8_acdJyU7TZexssXx/exec';
 
         // 2. Auto-fill Tanggal Hari Ini
@@ -464,14 +461,12 @@
         document.getElementById('skmForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
-            // Tampilkan indikator loading pada tombol kirim
             const submitBtn = this.querySelector('button[type="submit"]');
             const originalBtnText = submitBtn.innerHTML;
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
 
-            // Mengumpulkan data form
-            const formData = {
+            let formData = {
                 tgl_survey: document.getElementById('tgl_survey').value,
                 nama: document.getElementById('nama').value,
                 no_hp: document.getElementById('no_hp').value,
@@ -483,68 +478,70 @@
                 saran: document.getElementById('saran').value
             };
 
-            // Ambil nilai 9 Unsur
+            let totalScore = 0;
             for (let i = 1; i <= 9; i++) {
-                const radios = document.getElementsByName(`unsur_${i}`);
-                for (let r of radios) {
-                    if (r.checked) {
-                        formData[`unsur_${i}`] = r.value;
-                        break;
-                    }
-                }
+                const val = parseInt(document.querySelector(`input[name="unsur_${i}"]:checked`).value);
+                formData[`unsur_${i}`] = val;
+                totalScore += val;
             }
 
-            // Kirim ke Apps Script
+            // Perhitungan IKM sesuai PermenPAN-RB No. 14 Tahun 2017
+            // Rumus Nilai IKM Konversi = (Total Nilai / 9) * 25
+            const ikmKonversi = ((totalScore / 9) * 25).toFixed(2);
+            formData['ikm'] = ikmKonversi;
+
+            let mutu = '';
+            let mutuClass = '';
+            if (ikmKonversi >= 88.31) {
+                mutu = 'Mutu Pelayanan A (Sangat Baik)';
+                mutuClass = 'bg-emerald-600';
+            } else if (ikmKonversi >= 76.61) {
+                mutu = 'Mutu Pelayanan B (Baik)';
+                mutuClass = 'bg-blue-600';
+            } else if (ikmKonversi >= 65.00) {
+                mutu = 'Mutu Pelayanan C (Kurang Baik)';
+                mutuClass = 'bg-amber-600';
+            } else {
+                mutu = 'Mutu Pelayanan D (Tidak Baik)';
+                mutuClass = 'bg-red-600';
+            }
+            formData['mutu'] = mutu;
+
+            // Kirim via Fetch ke Google Apps Script
             fetch(SCRIPT_URL, {
                 method: 'POST',
-                mode: 'cors',
-                headers: {
-                    'Content-Type': 'text/plain;charset=utf-8'
-                },
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
-            })
-            .then(response => response.json())
-            .then(data => {
+            }).then(() => {
+                // Tampilkan Modal Berhasil
+                document.getElementById('resName').textContent = formData.nama;
+                document.getElementById('resService').textContent = formData.layanan;
+                document.getElementById('resIKM').textContent = ikmKonversi;
+                
+                const badgeMutu = document.getElementById('resMutu');
+                badgeMutu.textContent = mutu;
+                badgeMutu.className = `px-2.5 py-1 rounded font-bold text-white text-[11px] ${mutuClass}`;
+
+                document.getElementById('successModal').classList.remove('hidden');
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalBtnText;
-
-                if (data.result === 'success') {
-                    // Tampilkan ke Modal
-                    document.getElementById('resName').textContent = formData.nama;
-                    document.getElementById('resService').textContent = formData.layanan;
-                    document.getElementById('resIKM').textContent = data.ikm;
-                    
-                    const resMutuEl = document.getElementById('resMutu');
-                    resMutuEl.textContent = "Mutu Pelayanan " + data.mutu;
-
-                    // Atur warna badge mutu
-                    if (data.ikm >= 88.31) resMutuEl.className = 'px-2.5 py-1 rounded font-bold text-white text-[11px] bg-emerald-600';
-                    else if (data.ikm >= 76.61) resMutuEl.className = 'px-2.5 py-1 rounded font-bold text-white text-[11px] bg-blue-600';
-                    else if (data.ikm >= 65.00) resMutuEl.className = 'px-2.5 py-1 rounded font-bold text-white text-[11px] bg-amber-600';
-                    else resMutuEl.className = 'px-2.5 py-1 rounded font-bold text-white text-[11px] bg-red-600';
-
-                    document.getElementById('successModal').classList.remove('hidden');
-                } else {
-                    alert('Gagal menyimpan data: ' + data.message);
-                }
-            })
-            .catch(error => {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalBtnText;
-                alert('Terjadi kesalahan koneksi. Silakan coba lagi.');
+            }).catch(error => {
                 console.error('Error:', error);
+                alert('Terjadi kesalahan koneksi saat mengirim data. Silakan coba lagi.');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
             });
         });
 
-        // 7. Reset Form dan Tutup Modal
         function resetAndCloseModal() {
             document.getElementById('successModal').classList.add('hidden');
             document.getElementById('skmForm').reset();
             document.getElementById('tgl_survey').valueAsDate = new Date();
             
-            // Kembali ke step 1
-            document.querySelectorAll('#skmForm > div').forEach((div, index) => {
-                if (index === 0) div.classList.remove('hidden');
+            // Reset ke Step 1
+            document.querySelectorAll('#skmForm > div').forEach((div, idx) => {
+                if (idx === 0) div.classList.remove('hidden');
                 else div.classList.add('hidden');
             });
             updateIndicator(1);
